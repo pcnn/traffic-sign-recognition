@@ -1,0 +1,31 @@
+#YOU MAY NEED TO CHANGE THE PATH
+net: "cnn.prototxt"
+
+# In the case of GTSRB, we have validation batch size 100 and 30 test iterations,
+# covering 3000 testing images.
+test_iter: 30
+
+# Carry out testing every 500 training iterations.
+test_interval: 500
+solver_type:SGD
+
+base_lr: 0.02
+momentum: 0.9
+regularization_type: "L2"
+weight_decay: 0.00001
+
+# The learning rate policy
+lr_policy: "exp"
+stepsize:1000
+gamma: 0.9998
+
+display: 100
+
+max_iter: 60000
+
+snapshot: 500
+snapshot_prefix: "cnn"
+
+solver_mode: GPU
+device_id : 0
+debug_info:false
