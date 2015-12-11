@@ -1,0 +1,272 @@
+# Download the original paper from:
+# http://people.idsia.ch/~juergen/nn2012traffic.pdf
+name:"5LayerNet"
+layer{
+	name:"data"
+	type:"ImageData"
+	top:"data"
+	top:"label"
+	include{
+		phase:TRAIN
+	}
+	transform_param{
+		scale:0.00390625
+		mean_file:"/home/hamed/Desktop/GTSRB/Training_CNN/lmdb/gtsr_mean.binaryproto"
+	}
+	image_data_param{
+		source:"/home/hamed/Desktop/GTSRB/Training_CNN/train.txt"
+		batch_size: 50
+		new_height:48
+		new_width:48
+		shuffle:true
+	}
+}
+layer{
+	name:"data"
+	type:"ImageData"
+	top:"data"
+	top:"label"
+	include{
+		phase:TEST
+	}
+	transform_param{
+		scale:0.00390625
+		mean_file:"/home/hamed/Desktop/GTSRB/Training_CNN/lmdb/gtsr_mean.binaryproto"
+	}
+	image_data_param{
+		source:"/home/hamed/Desktop/GTSRB/Test_CNN/test.txt"
+		batch_size: 100
+		new_height:48
+		new_width:48
+		shuffle:false
+	}
+}
+layer{
+	name:"conv7x7_1"
+	type:"Convolution"
+	bottom:"data"
+	top:"conv7x7_1"
+	convolution_param{
+		num_output:100
+		kernel_size:7
+		stride:1
+		group:1
+		weight_filler{
+			type:"xavier"
+			#type:"uniform"
+			#max:0.05
+			#min:-0.05
+		}
+		bias_filler{
+			type:"constant"
+		}
+	}
+	param{
+		lr_mult:1
+	}
+	param{
+		lr_mult:2
+	}
+}
+layer{
+	name:"tanh1"
+	type:"TanH"
+	bottom:"conv7x7_1"
+	top:"conv7x7_1"	
+}
+layer{
+	name:"pooling1"
+	type:"Pooling"
+	bottom:"conv7x7_1"
+	top:"pooling1"
+	pooling_param{
+		pool:MAX
+		kernel_size:2
+		stride:2
+	}
+}
+layer{
+	name:"conv4x4_1"
+	type:"Convolution"
+	bottom:"pooling1"
+	top:"conv4x4_1"
+	convolution_param{
+		num_output:150
+		kernel_size:4
+		stride:1
+		group:1
+		weight_filler{
+			type:"xavier"
+			#type:"uniform"
+			#max:0.05
+			#min:-0.05
+		}
+		bias_filler{
+			type:"constant"
+		}
+	}
+	param{
+		lr_mult:1
+	}
+	param{
+		lr_mult:2
+	}
+}
+layer{
+	name:"tanh2"
+	type:"TanH"
+	bottom:"conv4x4_1"
+	top:"conv4x4_1"	
+}
+layer{
+	name:"pooling2"
+	type:"Pooling"
+	bottom:"conv4x4_1"
+	top:"pooling2"
+	pooling_param{
+		pool:MAX
+		kernel_size:2
+		stride:2
+	}
+}
+layer{
+	name:"conv4x4_2"
+	type:"Convolution"
+	bottom:"pooling2"
+	top:"conv4x4_2"
+	convolution_param{
+		num_output:250
+		kernel_size:4
+		stride:1
+		group:1
+		weight_filler{
+			type:"xavier"
+			#type:"uniform"
+			#max:0.05
+			#min:-0.05
+		}
+		bias_filler{
+			type:"constant"
+		}
+	}
+	param{
+		lr_mult:1
+	}
+	param{
+		lr_mult:2
+	}
+}
+layer{
+	name:"tanh3"
+	type:"TanH"
+	bottom:"conv4x4_2"
+	top:"conv4x4_2"	
+}
+layer{
+	name:"pooling3"
+	type:"Pooling"
+	bottom:"conv4x4_2"
+	top:"pooling3"
+	pooling_param{
+		pool:MAX
+		kernel_size:2
+		stride:2
+	}
+}
+layer{
+	name:"ip1"
+	type:"InnerProduct"
+	bottom:"pooling3"
+	top:"ip1"
+	inner_product_param{
+		num_output:300
+		weight_filler{
+			type:"xavier"
+			#type:"uniform"
+			#max:0.05
+			#min:-0.05
+		}
+		bias_filler{
+			type:"constant"
+		}
+	}
+	param {
+	    lr_mult: 1
+	}
+	param {
+	    lr_mult: 2
+	}
+}
+layer{
+	name:"tanh_fc1"
+	type:"TanH"
+	bottom:"ip1"
+	top:"tanh_fc1"	
+}
+layer{
+	name:"ipclassify"
+	type:"InnerProduct"
+	bottom:"tanh_fc1"
+	top:"ipclassify"
+	inner_product_param{
+		num_output:43
+		weight_filler{
+			type:"xavier"
+			#type:"uniform"
+			#max:0.05
+			#min:-0.05
+		}
+		bias_filler{
+			type:"constant"
+		}
+	}
+	param {
+	    lr_mult: 1
+	}
+	param {
+	    lr_mult: 2
+	}
+}
+layer{
+	name:"accuracy1"
+	type:"Accuracy"	
+	bottom:"ipclassify"
+	bottom:"label"
+	top:"accuracy1"
+	include{
+		phase:TEST
+	}
+}
+layer{
+	name:"accuracy2"
+	type:"Accuracy"	
+	bottom:"ipclassify"
+	bottom:"label"
+	top:"accuracy2"
+	accuracy_param{
+		top_k:2
+	}
+	include{
+		phase:TEST
+	}
+}
+layer{
+	name:"accuracy5"
+	type:"Accuracy"	
+	bottom:"ipclassify"
+	bottom:"label"
+	top:"accuracy5"
+	accuracy_param{
+		top_k:5
+	}
+	include{
+		phase:TEST
+	}
+}
+layer{
+	name:"loss"
+	type:"SoftmaxWithLoss"
+	bottom:"ipclassify"
+	bottom:"label"
+	top:"loss"	
+}

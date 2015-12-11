@@ -1,0 +1,191 @@
+#download the original paper from:
+# http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=6766231&tag=1
+name:"jin_tsr"
+layer{
+	name:"data"
+	type:"ImageData"
+	top:"data"
+	top:"label"
+	include{
+		phase:TRAIN
+	}
+	transform_param{
+		scale:0.00390625		
+	}
+	image_data_param{
+		source:"/home/hamed/Desktop/GTSRB/Training_CNN/train.txt"
+		batch_size: 1
+		new_height:47
+		new_width:47		
+	}
+}
+layer{
+	name:"conv1"
+	type:"Convolution"
+	bottom:"data"
+	top:"conv1"
+	convolution_param{
+		num_output:70
+		kernel_size:5
+		stride:1		
+		pad: 2
+	}	
+}
+layer{
+	name:"pooling1"
+	type:"Pooling"
+	bottom:"conv1"
+	top:"pooling1"
+	pooling_param{
+		pool:MAX
+		kernel_size:3
+		stride:2
+	}
+}
+layer{
+	name:"reul1"
+	type:"ReLU"
+	bottom:"pooling1"
+	top:"relu1"
+	relu_param{
+		negative_slope:0.0
+	}
+}
+layer{
+	name:"lrn1"
+	type:"LRN"
+	bottom:"relu1"
+	top:"lrn1"
+	lrn_param{
+		local_size:5		
+	}	
+}
+
+layer{
+	name:"conv2"
+	type:"Convolution"
+	bottom:"lrn1"
+	top:"conv2"
+	convolution_param{
+		num_output:110
+		kernel_size:3
+		stride:1		
+		pad: 1
+	}	
+}
+layer{
+	name:"pooling2"
+	type:"Pooling"
+	bottom:"conv2"
+	top:"pooling2"
+	pooling_param{
+		pool:MAX
+		kernel_size:3
+		stride:2
+	}
+}
+layer{
+	name:"reul2"
+	type:"ReLU"
+	bottom:"pooling2"
+	top:"relu2"
+	relu_param{
+		negative_slope:0.0
+	}
+}
+layer{
+	name:"lrn2"
+	type:"LRN"
+	bottom:"relu2"
+	top:"lrn2"
+	lrn_param{
+		local_size:5		
+	}	
+}
+
+layer{
+	name:"conv3"
+	type:"Convolution"
+	bottom:"lrn2"
+	top:"conv3"
+	convolution_param{
+		num_output:180
+		kernel_size:3
+		stride:1		
+		pad: 1
+	}	
+}
+layer{
+	name:"pooling3"
+	type:"Pooling"
+	bottom:"conv3"
+	top:"pooling3"
+	pooling_param{
+		pool:MAX
+		kernel_size:3
+		stride:2
+	}
+}
+layer{
+	name:"reul3"
+	type:"ReLU"
+	bottom:"pooling3"
+	top:"relu3"
+	relu_param{
+		negative_slope:0.0
+	}
+}
+layer{
+	name:"lrn3"
+	type:"LRN"
+	bottom:"relu3"
+	top:"lrn3"
+	lrn_param{
+		local_size:5		
+	}	
+}
+layer{
+	name:"ip1"
+	type:"InnerProduct"
+	bottom:"lrn3"
+	top:"ip1"
+	inner_product_param{
+		num_output:200		
+	}
+	
+}
+layer{
+	name:"relu_fc1"
+	type:"ReLU"
+	bottom:"ip1"
+	top:"relu_fc1"
+	relu_param{
+		negative_slope:0.00
+	}
+}
+layer{
+	name:"ip2"
+	type:"InnerProduct"
+	bottom:"relu_fc1"
+	top:"ip2"
+	inner_product_param{
+		num_output:42		
+	}	
+}
+layer{
+	name:"ipclassify"
+	type:"InnerProduct"
+	bottom:"ip2"
+	top:"ipclassify"
+	inner_product_param{
+		num_output:43		
+	}
+	
+}
+layer{
+	name:"loss"
+	type:"SoftmaxWithLoss"
+	bottom:"ipclassify"
+	bottom:"label"
+	top:"loss"	
+}
